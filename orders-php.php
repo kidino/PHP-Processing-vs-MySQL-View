@@ -19,8 +19,7 @@ $started_at = microtime(true);
 	include('db.php');
 	
 	function numberFormat($number, $decimals = 2, $sep = ".", $k = ","){
-		return number_format($number, $decimals, $sep, $k); // Format the number
-		//return cutNum($number);
+		return number_format($number/100, $decimals, $sep, $k); // Format the number
 	}
 	
 	$conn = new dbconnection('localhost', 'root', '', 'nwind');
@@ -34,7 +33,10 @@ $started_at = microtime(true);
 	$order_details->table = 'order_details';
 
 	$order_summary = array();
+	
 	foreach($order_details->get_all() as $od){
+		
+		$od['UnitPrice'] = ceil($od['UnitPrice'] * 100);
 		
 		if(!isset( $order_summary[$od['OrderID']]['TotalItems'] )) {
 			$order_summary[$od['OrderID']]['TotalItems'] = 1;
@@ -87,7 +89,9 @@ $started_at = microtime(true);
 				$counter = 0;
 				foreach($orders->get_all() as $o) { 
 					$counter++;
-					$oid = $o['OrderID']; ?>
+					$oid = $o['OrderID']; 
+					$o['Freight'] = floor($o['Freight'] * 100);
+				?>
 				<tr>
 					<td align="right"><?php echo $counter;?></td>
 					<td><?php echo $oid;?></td>
@@ -97,8 +101,8 @@ $started_at = microtime(true);
 					<td align="center"><?php echo $order_summary[$oid]['TotalItems'];?></td>
 					<td align="right"><?php echo numberFormat($order_summary[$oid]['TotalAmount']);?></td>
 					<td align="right"><?php echo numberFormat($order_summary[$oid]['TotalDiscount']);?></td>
-					<td align="right"><?php echo numberFormat(floor(($order_summary[$oid]['TotalAmount'] - $order_summary[$oid]['TotalDiscount']) * 100 ) / 100);?></td>
-					<td align="right"><?php echo numberFormat(floor(($o['Freight'] + $order_summary[$oid]['Discounted']) * 100)/100);?></td>
+					<td align="right"><?php echo numberFormat($order_summary[$oid]['TotalAmount'] - $order_summary[$oid]['TotalDiscount']);?></td>
+					<td align="right"><?php echo numberFormat($o['Freight'] + $order_summary[$oid]['Discounted']);?></td>
 				</tr>
 			<?php } ?>
 			</tbody>

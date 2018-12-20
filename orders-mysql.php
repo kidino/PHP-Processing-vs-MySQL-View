@@ -21,7 +21,12 @@ $started_at = microtime(true);
 	$conn = new dbconnection('localhost', 'root', '', 'nwind');
 	$orders = new dbmodel($conn);
 	$orders->idcol = 'OrderID';
-	$orders->table = 'order_summary';
+	
+	// 'order_summary_opt' or 'order_summary'
+	// order_summary_opt produces better result by eliminating
+	// multiple sub-selects
+	$orders->table = 'order_summary_opt'; 
+	
 	$orders->order_by = 'OrderID DESC';
 ?>
 <div class="container">
